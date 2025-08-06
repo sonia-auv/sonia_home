@@ -1,0 +1,52 @@
+###########
+
+# SONIA Configuration
+
+#IP_ADDRESS=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')
+
+### SONIA specific
+#export AUV_LOCAL_ENVIRONMENT=dev
+
+### ROS Environment variables
+#export ROS_SONIA_WS=~/ros2_sonia_ws/install/setup.bash
+#export ROS_WS_SETUP=~/ros2_humble/install/setup.bash
+export AUV8_IP=192.168.0.31
+export AUV7_IP=192.168.0.11
+export ROS_SONIA_WS==~/ros2_sonia_ws
+#export ROS_IP=${IP_ADDRESS}
+
+###########
+
+# My aliases
+alias ..='cd ..'
+alias cd..='cd ..'
+alias port='netstat -natp'
+alias resource="source ~/.bashrc"
+alias ros_connect_auv7="export ROS_DOMAIN_ID=7 && export AUV=AUV7 && resource" # AUV7
+alias ros_connect_auv8="export ROS_DOMAIN_ID=8 && export AUV=AUV8 && resource" # AUV8
+alias ros_connect_local="export ROS_DOMAIN_ID=0 && export AUV=LOCAL && resource" # LOCAL
+#alias mount_auv8='sudo mount -t nfs -o nfsvers=3 ${AUV8_IP}:/export/behaviors ${ROS_SONIA_WS}/src/sonia-behaviors/'
+#alias mount_auv7='sudo mount -t nfs -o nfsvers=3 ${AUV7_IP}:/export/behaviors ${ROS_SONIA_WS}/src/sonia-behaviors/'
+#alias umount='sudo umount ${ROS_SONIA_WS}/src/sonia-behaviors/'
+alias uncompress_front='rosrun image_transport republish compressed in:=camera_array/front/image_raw raw out:=camera_array/front/image_raw'
+alias uncompress_bottom='rosrun image_transport republish compressed in:=camera_array/bottom/image_raw raw out:=camera_array/bottom/image_raw'
+
+alias build_packages="cd $SONIA_ROS_WS && colcon build && cd -"
+
+# Jetson AGX SONIA Aliases
+#alias sonia-source='source ${ROS_SONIA_WS}/devel/setup.bash'
+#alias sonia-cd='cd ${ROS_SONIA_WS} && sonia-source'
+
+alias poof='sudo -S poweroff'
+alias repoof='sudo -S reboot'
+
+###########
+
+## ROS specific configurations
+#if [ -f ${ROS_WS_SETUP} ]; then
+#    source ${ROS_WS_SETUP}
+#fi
+
+#if [ -f ${ROS_SONIA_WS} ]; then
+#    source ${ROS_SONIA_WS}
+#fi
