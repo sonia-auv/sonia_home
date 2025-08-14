@@ -1,6 +1,5 @@
-#!/bin/sh
-# No commands here except function definitions
-# Load this by `source /path/to/sonia_build_all.sh` from your .bash_sonia
+#!/usr/bin/env bash
+
 sonia_build() {
     local use_dir=0
     local use_cache=0
@@ -15,7 +14,7 @@ sonia_build() {
             -c|--cache) use_cache=1 ;;
             -h|--help)
                 cat <<EOF
-Usage: sonia_build [options]
+Usage: sonia_build_all [options]
 
 Options (can be combined):
   -d, --dir     Build all packages under the current directory path
@@ -23,16 +22,16 @@ Options (can be combined):
   -c, --cache   Clean CMake cache before building (--cmake-clean-cache)
   -h, --help    Show this help
 
-Default (no flags): build only the current package.
+Default (no flags): build only the current package (same as old 'sonia_build').
 
 Examples:
-  sonia_build
+  sonia_build_all
       Build current package.
-  sonia_build -c
+  sonia_build_all -c
       Build current package, cleaning cache.
-  sonia_build -d
+  sonia_build_all -d
       Build all packages under the current directory path.
-  sonia_build -d -c
+  sonia_build_all -d -c
       Build all packages under the current directory path, cleaning cache.
 
 Requires:
@@ -54,13 +53,12 @@ EOF
         return 1
     fi
 
-    # Helper: extract package name from a package.xml (first <name>…</name>)
+    # Helper: extract package name from package.xml
     _sb_pkgname_from_xml() {
-        # $1 = path to package.xml
         sed -n 's:.*<name>[[:space:]]*\([^<[:space:]]\+\)[[:space:]]*</name>.*:\1:p' "$1" | head -n1
     }
 
-    # Detect current package name (for normal/cache modes)
+    # Detect current package name for normal/cache modes
     local pkg="$folder"
     if [ -f "$path/package.xml" ]; then
         local detected
@@ -70,16 +68,14 @@ EOF
 
     cd "$SONIA_WS" || return 1
 
-    # Build base command (array for safe spacing/quoting)
+    # Build base command
     local base_cmd=(colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON)
-
-    # Add cache clean if requested
     if (( use_cache )); then
         base_cmd+=("--cmake-clean-cache")
     fi
 
     if (( use_dir )); then
-        # DIR mode: collect package names under $path/* to feed --allow-overriding
+        # DIR mode: collect package names under $path/*
         local pkgs=()
         local d pkgxml pkgname
         for d in "$path"/*/ ; do
@@ -89,18 +85,16 @@ EOF
             pkgname=$(_sb_pkgname_from_xml "$pkgxml")
             [ -n "$pkgname" ] && pkgs+=("$pkgname")
         done
+
         if [ "${#pkgs[@]}" -eq 0 ]; then
-            echo "Warning: no ROS 2 packages (package.xml) found under: $path/*"
+            echo "Warning: no ROS 2 packages found under $path/*"
+            "${base_cmd[@]}" --continue-on-error --paths "$path"/*
+        else
+            "${base_cmd[@]}" --continue-on-error --paths "$path"/* --allow-overriding "${pkgs[@]}"
         fi
-        "${base_cmd[@]}" \
-            --continue-on-error \
-            --paths "$path"/* \
-            ${#pkgs[@]&&echo --allow-overriding "${pkgs[@]}"}
     else
-        # NORMAL/CACHE mode: single package (use detected name or folder fallback)
-        "${base_cmd[@]}" \
-            --packages-select "$pkg" \
-            --allow-overriding "$pkg"
+        # NORMAL/CACHE mode: single package
+        "${base_cmd[@]}" --packages-select "$pkg" --allow-overriding "$pkg"
     fi
 
     cd "$path" || return
