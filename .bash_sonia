@@ -13,12 +13,12 @@ fi
 UBUNTU_VERSION=$(lsb_release -rs)
 
 if [[ "$UBUNTU_VERSION" == "20.04" ]]; then
-    echo "Detected Ubuntu 20.04"
+    # echo "Detected Ubuntu 20.04"
     # Do 20.04-specific stuff here
     export ROS_WS_SETUP=~/ros2_humble/install/setup.bash
 
 elif [[ "$UBUNTU_VERSION" == "22.04" ]]; then
-    echo "Detected Ubuntu 22.04"
+    # echo "Detected Ubuntu 22.04"
     export ROS_WS_SETUP=/opt/ros/humble/setup.bash
 
 else
@@ -67,21 +67,10 @@ alias repoof='sudo -S reboot'
 
 ###########
 # useful functions
-sonia_build() {
-    path=$PWD
-    folder=$(basename "$PWD")
-    cd $SONIA_WS
-    colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON --packages-select $folder --allow-overriding $folder --cmake-clean-cache 
-    cd $path
-}
-
-sonia_build_short() {
-    path=$PWD
-    folder=$(basename "$PWD")
-    cd $SONIA_WS
-    colcon build --symlink-install --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON --packages-select $folder --allow-overriding $folder
-    cd $path
-}
+# Load custom SONIA build helper
+if [ -f "$SONIA_DIR/sonia_build.sh" ]; then
+    source "$SONIA_DIR/sonia_build.sh"
+fi
 
 sonia_test() {
     path=$PWD
@@ -99,9 +88,11 @@ sonia_test() {
 
 # ROS specific configurations
 if [ -f ${ROS_WS_SETUP} ]; then
-   source ${ROS_WS_SETUP}
+    # echo ${ROS_WS_SETUP}
+    source ${ROS_WS_SETUP}
 fi
 
-if [ -f ${SONIA_WS} ]; then
-   source ${SONIA_WS}/install/setup.bash
+if [ -d ${SONIA_WS} ]; then
+    # echo ${SONIA_WS}/install/setup.bash
+    source ${SONIA_WS}/install/setup.bash
 fi
