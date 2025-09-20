@@ -10,22 +10,6 @@ if [ -f "$SONIA_DIR/.env" ]; then
     set +a
 fi
 
-UBUNTU_VERSION=$(lsb_release -rs)
-
-if [[ "$UBUNTU_VERSION" == "20.04" ]]; then
-    # echo "Detected Ubuntu 20.04"
-    # Do 20.04-specific stuff here
-    export ROS_WS_SETUP=~/ros2_humble/install/setup.bash
-
-elif [[ "$UBUNTU_VERSION" == "22.04" ]]; then
-    # echo "Detected Ubuntu 22.04"
-    export ROS_WS_SETUP=/opt/ros/humble/setup.bash
-
-else
-    echo "Warning: Unsupported Ubuntu version ($UBUNTU_VERSION)"
-fi
-
-
 # SONIA Configuration
 
 #IP_ADDRESS=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')
@@ -53,6 +37,9 @@ alias ros_connect_local="export ROS_DOMAIN_ID=0 && export AUV=LOCAL && resource"
 alias ros_local_on="export ROS_LOCALHOST_ONLY=1"
 alias ros_local_off="export ROS_LOCALHOST_ONLY=0"
 
+alias ROS_START='ros2 launch sonia_common_ros2 ${AUV}.launch.py | tee -a $SONIA_WS/ros_logs/ROS2_LOG_Launch.txt'
+
+
 alias uncompress_front='rosrun image_transport republish compressed in:=camera_array/front/image_raw raw out:=camera_array/front/image_raw'
 alias uncompress_bottom='rosrun image_transport republish compressed in:=camera_array/bottom/image_raw raw out:=camera_array/bottom/image_raw'
 
@@ -64,6 +51,7 @@ alias uncompress_bottom='rosrun image_transport republish compressed in:=camera_
 
 alias poof='sudo -S poweroff'
 alias repoof='sudo -S reboot'
+
 
 ###########
 # useful functions
