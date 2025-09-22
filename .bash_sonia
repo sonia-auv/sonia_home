@@ -60,6 +60,10 @@ if [ -f "$SONIA_DIR/sonia_build.sh" ]; then
     source "$SONIA_DIR/sonia_build.sh"
 fi
 
+if [ -f "$SONIA_DIR/sonia_sync.sh" ]; then
+    source "$SONIA_DIR/sonia_sync.sh"
+fi
+
 sonia_test() {
     path=$PWD
     folder=$(basename "$PWD")
