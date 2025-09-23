@@ -1,0 +1,13 @@
+sonia_common_ros2
+cam_port_manager
+depth_port_manager
+dvl_port_manager
+imu_port_manager
+proc_control_ros2
+proc_planner_ros2
+proc_vision_ros2
+ros2_rqt_sonia_plugins
+rs485_port_manager
+sonia_bt_missions
+sonia_bt_runner
+zed_port_manager

@@ -1,4 +1,14 @@
+# .bash_sonia
 ###########
+# Find the folder where this file lives
+SONIA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Load .env if it exists
+if [ -f "$SONIA_DIR/.env" ]; then
+    set -a  # automatically export variables
+    source "$SONIA_DIR/.env"
+    set +a
+fi
 
 # SONIA Configuration
 
@@ -8,12 +18,10 @@
 #export AUV_LOCAL_ENVIRONMENT=dev
 
 ### ROS Environment variables
-#export ROS_SONIA_WS=~/ros2_sonia_ws/install/setup.bash
-#export ROS_WS_SETUP=~/ros2_humble/install/setup.bash
 export AUV8_IP=192.168.0.31
-export AUV7_IP=192.168.0.11
-export ROS_SONIA_WS==~/ros2_sonia_ws
-#export ROS_IP=${IP_ADDRESS}
+export LITE1_IP=192.168.0.11
+## Allows colored ROS prompts
+export RCUTILS_COLORIZED_OUTPUT=1
 
 ###########
 
@@ -22,16 +30,20 @@ alias ..='cd ..'
 alias cd..='cd ..'
 alias port='netstat -natp'
 alias resource="source ~/.bashrc"
+alias ros_connect_lite1="export ROS_DOMAIN_ID=6 && export AUV=LITE1 && resource" # AUV7
 alias ros_connect_auv7="export ROS_DOMAIN_ID=7 && export AUV=AUV7 && resource" # AUV7
 alias ros_connect_auv8="export ROS_DOMAIN_ID=8 && export AUV=AUV8 && resource" # AUV8
 alias ros_connect_local="export ROS_DOMAIN_ID=0 && export AUV=LOCAL && resource" # LOCAL
-#alias mount_auv8='sudo mount -t nfs -o nfsvers=3 ${AUV8_IP}:/export/behaviors ${ROS_SONIA_WS}/src/sonia-behaviors/'
-#alias mount_auv7='sudo mount -t nfs -o nfsvers=3 ${AUV7_IP}:/export/behaviors ${ROS_SONIA_WS}/src/sonia-behaviors/'
-#alias umount='sudo umount ${ROS_SONIA_WS}/src/sonia-behaviors/'
+alias ros_local_on="export ROS_LOCALHOST_ONLY=1"
+alias ros_local_off="export ROS_LOCALHOST_ONLY=0"
+
+alias ROS_START='ros2 launch sonia_common_ros2 ${AUV}.launch.py | tee -a $SONIA_WS/ros_logs/ROS2_LOG_Launch.txt'
+
+
 alias uncompress_front='rosrun image_transport republish compressed in:=camera_array/front/image_raw raw out:=camera_array/front/image_raw'
 alias uncompress_bottom='rosrun image_transport republish compressed in:=camera_array/bottom/image_raw raw out:=camera_array/bottom/image_raw'
 
-alias build_packages="cd $SONIA_ROS_WS && colcon build && cd -"
+# alias build_packages="cd $SONIA_ROS_WS && colcon build && cd -"
 
 # Jetson AGX SONIA Aliases
 #alias sonia-source='source ${ROS_SONIA_WS}/devel/setup.bash'
@@ -40,13 +52,39 @@ alias build_packages="cd $SONIA_ROS_WS && colcon build && cd -"
 alias poof='sudo -S poweroff'
 alias repoof='sudo -S reboot'
 
+
 ###########
+# useful functions
+# Load custom SONIA build helper
+if [ -f "$SONIA_DIR/sonia_build.sh" ]; then
+    source "$SONIA_DIR/sonia_build.sh"
+fi
 
-## ROS specific configurations
-#if [ -f ${ROS_WS_SETUP} ]; then
-#    source ${ROS_WS_SETUP}
-#fi
+if [ -f "$SONIA_DIR/sonia_sync.sh" ]; then
+    source "$SONIA_DIR/sonia_sync.sh"
+fi
 
-#if [ -f ${ROS_SONIA_WS} ]; then
-#    source ${ROS_SONIA_WS}
-#fi
+sonia_test() {
+    path=$PWD
+    folder=$(basename "$PWD")
+    cd $SONIA_WS
+    if [ -f "$path/CMakeLists.txt" ]; then
+       colcon test --ctest-args test --packages-select $folder --event-handlers console_cohesion+
+    else
+        colcon test --pytest-args test --packages-select $folder --event-handlers console_cohesion+
+    fi
+    cd $path
+}
+
+#########
+
+# ROS specific configurations
+if [ -f ${ROS_WS_SETUP} ]; then
+    # echo ${ROS_WS_SETUP}
+    source ${ROS_WS_SETUP}
+fi
+
+if [ -d ${SONIA_WS} ]; then
+    # echo ${SONIA_WS}/install/setup.bash
+    source ${SONIA_WS}/install/setup.bash
+fi
