@@ -32,7 +32,6 @@ alias port='netstat -natp'
 alias resource="source ~/.bashrc"
 alias ros_connect_lite="$HOME/ros2_sonia_ws/src/ros2_rqt_sonia_plugins/scripts/ros_connect_lite.sh && resource" # LITE
 alias ros_connect_auv8="$HOME/ros2_sonia_ws/src/ros2_rqt_sonia_plugins/scripts/ros_connect_auv8.sh && resource" # AUV8
-alias ros_connect_local="export ROS_DOMAIN_ID=0 && export AUV=LOCAL && resource" # LOCAL
 alias ros_local_on="export ROS_LOCALHOST_ONLY=1"
 alias ros_local_off="export ROS_LOCALHOST_ONLY=0"
 
